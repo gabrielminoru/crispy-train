@@ -1,10 +1,5 @@
 import openai
-from pathlib import Path
-import string
-from unidecode import unidecode
-from config import settings
-from ct.prompt import Searcher, Prompt
-from ct.data import Data
+from ct.searcher import DumbSearcher
 
 #openai.api_key=settings.openai_token
 
@@ -13,7 +8,7 @@ class Chat:
         openai.api_key = settings.openai_token
         self.name = botname
 
-    def setup(self, searcher):
+    def set_searcher(self, searcher):
         self.searcher = searcher
 
     def msg(self, prompt):
@@ -30,8 +25,9 @@ class Chat:
         return response['choices'][0]['text']
 
     def run(self):
+        assert hasattr(self, "searcher"), "Searcher was not set up, use Chat.set_searcher(searcher: Searcher) to set it up."
         while True:
             raw = input("Você: ")
             print('\n')
-            print(f"{self.name}: {self.msg(Prompt(raw, self.searcher).enhance())}")
+            print(f"{self.name}: {self.msg(self.searcher.enhance(raw))}")
             print('\n')
